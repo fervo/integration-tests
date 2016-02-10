@@ -54,33 +54,33 @@ abstract class TaggableCachePoolTest extends \PHPUnit_Framework_TestCase
             return;
         }
 
-        $item = $this->cache->getItem('tobias', ['developer', 'speaker']);
+        $item = $this->cache->getItem('tobias');
         $item->set('foobar');
+        $item->setTags(['developer', 'speaker']);
+
+        $item = $this->cache->getItem('aaron');
+        $item->set('foobar');
+        $item->setTags(['developer', 'nice guy']);
         $this->cache->save($item);
 
-        $item = $this->cache->getItem('aaron', ['developer', 'nice guy']);
+        $item = $this->cache->getItem('the king of Sweden');
         $item->set('foobar');
+        $item->setTags(['nice guy', 'king']);
         $this->cache->save($item);
 
-        $item = $this->cache->getItem('the king of Sweden', ['nice guy', 'king']);
-        $item->set('foobar');
-        $this->cache->save($item);
-
-        $this->assertTrue($this->cache->getItem('tobias', ['developer', 'speaker'])->isHit());
-        $this->assertTrue($this->cache->getItem('tobias', ['speaker', 'developer'])->isHit());
-        $this->assertFalse($this->cache->getItem('tobias', ['developer'])->isHit());
-        $this->assertFalse($this->cache->getItem('tobias', ['king'])->isHit());
-        $this->assertFalse($this->cache->getItem('tobias')->isHit());
+        $this->assertTrue($this->cache->getItem('tobias')->isHit());
+        $this->assertTrue($this->cache->getItem('aaron')->isHit());
+        $this->assertTrue($this->cache->getItem('the king of Sweden')->isHit());
 
         // Remove everything tagged with 'nice guy'
-        $this->cache->clear(['nice guy']);
-        $this->assertTrue($this->cache->getItem('tobias', ['developer', 'speaker'])->isHit());
-        $this->assertFalse($this->cache->getItem('aaron', ['developer', 'nice guy'])->isHit());
-        $this->assertFalse($this->cache->getItem('the king of Sweden', ['nice guy', 'king'])->isHit());
+        $this->cache->clearTags(['nice guy']);
+        $this->assertTrue($this->cache->getItem('tobias')->isHit());
+        $this->assertFalse($this->cache->getItem('aaron')->isHit());
+        $this->assertFalse($this->cache->getItem('the king of Sweden')->isHit());
 
         // To clear everything you do as you usually do
         $this->cache->clear();
-        $this->assertFalse($this->cache->getItem('tobias', ['developer', 'speaker'])->isHit());
+        $this->assertFalse($this->cache->getItem('tobias')->isHit());
     }
 
     public function testGetItem()
